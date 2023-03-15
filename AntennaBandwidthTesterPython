@@ -1,0 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate a test signal
+fs = 1000 # Sampling rate
+f_signal = 100 # Signal frequency
+t = np.arange(0, 1, 1/fs)
+signal = np.sin(2*np.pi*f_signal*t)
+
+# Set up frequency sweep
+f_start = 1 # Start frequency
+f_stop = 500 # Stop frequency
+n_points = 100 # Number of frequency points
+freqs = np.logspace(np.log10(f_start), np.log10(f_stop), n_points)
+
+# Measure response
+responses = []
+for freq in freqs:
+    t = np.arange(0, 1, 1/fs)
+    signal = np.sin(2*np.pi*freq*t)
+    response = np.abs(np.fft.fft(signal))
+    responses.append(response[0:int(len(response)/2)])
+
+# Plot frequency response
+fig, ax = plt.subplots()
+ax.plot(freqs, responses)
+ax.set_xlabel('Frequency (Hz)')
+ax.set_ylabel('Amplitude')
+ax.set_xscale('log')
+ax.set_title('Antenna Frequency Response')
+
+# Find bandwidth
+max_response = max(responses)
+bw = freqs[np.where(responses >= 0.5*max_response)[0][-1]] - freqs[np.where(responses >= 0.5*max_response)[0][0]]
+print(f'Bandwidth: {bw:.2f} Hz')
